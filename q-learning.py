@@ -26,10 +26,10 @@ traci.gui.setSchema("View #0", "real world")
 SIMULATION_STEPS = 10000
 TRAFFIC_LIGHT = "cluster_J1_J2_J4_J6"
 STEP_LENGTH = 0.1
-ACTIONS = [0, 1]  # 0 = keep phase, 1 = switch phase
-ALPHA = 0.1       # Learning rate
-GAMMA = 0.9       # Discount factor
-EPSILON = 0.1     # Exploration rate
+ACTIONS = [0, 1]  
+ALPHA = 0.1      
+GAMMA = 0.9       
+EPSILON = 0.1     
 
 # Data
 step_history = []

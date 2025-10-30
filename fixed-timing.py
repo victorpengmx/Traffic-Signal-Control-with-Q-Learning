@@ -3,6 +3,9 @@ import sys
 import traci
 import matplotlib.pyplot as plt
 
+DIRECTORY_PATH = "results"
+os.makedirs(DIRECTORY_PATH, exist_ok=True)
+
 # SUMO environment setup
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -12,7 +15,8 @@ else:
 
 # SUMO configuration
 sumo_config = [
-    'sumo-gui', '-c', 'networks/simple_cross.sumocfg', '--step-length', '0.10', '--delay', '1000'
+    'sumo-gui', '-c', 'networks/simple_cross.sumocfg',
+    '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
 # Start SUMO and Traci
@@ -22,7 +26,7 @@ traci.gui.setSchema("View #0", "real world")
 # Parameters
 SIMULATION_STEPS = 10000
 TRAFFIC_LIGHT = "cluster_J1_J2_J4_J6"
-GREEN_DURATION = 30
+GREEN_DURATION = 60
 STEP_LENGTH = 0.1
 STEPS_PER_PHASE = int(GREEN_DURATION / STEP_LENGTH)
 
@@ -80,7 +84,7 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Queue Length (vehicles)")
 plt.legend()
 plt.grid(True)
-plt.savefig("queue-length.png")
+plt.savefig(DIRECTORY_PATH + "/fixedtiming-queuelength.png")
 plt.show()
 
 plt.figure(figsize=(8, 6))
@@ -90,5 +94,5 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Waiting Time (s)")
 plt.legend()
 plt.grid(True)
-plt.savefig("waiting-time.png")
+plt.savefig(DIRECTORY_PATH + "/fixedtiming-waitingtime.png")
 plt.show()

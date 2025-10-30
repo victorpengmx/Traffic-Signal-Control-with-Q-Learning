@@ -5,6 +5,9 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
+DIRECTORY_PATH = "results"
+os.makedirs(DIRECTORY_PATH, exist_ok=True)
+
 # SUMO environment setup
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -30,6 +33,10 @@ ACTIONS = [0, 1]
 ALPHA = 0.1      
 GAMMA = 0.9       
 EPSILON = 0.1     
+
+# Hard constraint: minimum green time
+MIN_GREEN_TIME = 25
+MIN_STEPS_PER_PHASE = int(MIN_GREEN_TIME / STEP_LENGTH)
 
 # Data
 step_history = []
@@ -89,12 +96,10 @@ for step in range(SIMULATION_STEPS + 1):
 
     traci.simulationStep()
     state = get_state()
-
-    # Choose action
     action = choose_action(state)
 
     # Apply action (0 = keep phase, 1 = switch phase)
-    if action == 1:
+    if action == 1 and phase_step_counter >= MIN_STEPS_PER_PHASE:
         current_phase = (current_phase + 1) % len(
             traci.trafficlight.getCompleteRedYellowGreenDefinition(TRAFFIC_LIGHT)[0].phases
         )
@@ -132,6 +137,7 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Queue Length (vehicles)")
 plt.legend()
 plt.grid(True)
+plt.savefig(DIRECTORY_PATH + "/qlearning-queuelength.png")
 plt.show()
 
 # Plot Waiting Time
@@ -142,4 +148,5 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Waiting Time (s)")
 plt.legend()
 plt.grid(True)
+plt.savefig(DIRECTORY_PATH + "/qlearning-waitingtime.png")
 plt.show()

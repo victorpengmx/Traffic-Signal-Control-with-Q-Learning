@@ -1,7 +1,7 @@
 <configuration>
     <input>
-        <net-file value="simple_cross.net.xml"/>
-        <route-files value="simple_cross.rou.xml"/>
+        <net-file value="multi_cross.net.xml"/>
+        <route-files value="multi_cross.rou.xml"/>
     </input>
 
     <time>

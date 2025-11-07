@@ -1,0 +1,8 @@
+{
+  "odata.metadata": "http://datamall2.mytransport.sg/ltaodataservice/$metadata#TrafficFlow",
+  "value": [
+    {
+      "Link": "https://dmprod-datasets.s3.ap-southeast-1.amazonaws.com/traffic-flow/data/trafficflow.json?...<long link>..."
+    }
+  ]
+}

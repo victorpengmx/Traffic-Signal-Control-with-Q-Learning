@@ -1,0 +1,15 @@
+<configuration>
+    <input>
+        <net-file value="simple_cross_lad.net.xml"/>
+        <route-files value="simple_cross.rou.xml"/>
+        <additional-files value="simple_cross_lad.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="1000"/>
+    </time>
+
+    <output>
+    </output>
+</configuration>

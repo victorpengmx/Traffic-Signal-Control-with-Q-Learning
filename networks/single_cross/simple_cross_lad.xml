@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-11-06 22:50:37 by Eclipse SUMO netedit Version 1.12.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <sumo-net-file value="/mnt/c/Users/dellp/OneDrive/Desktop/NUSStuff/Y4S1/CS3263/project/traffic-light-control/networks/simple_cross_lad.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/mnt/c/Users/dellp/OneDrive/Desktop/NUSStuff/Y4S1/CS3263/project/traffic-light-control/networks/simple_cross_lad.net.xml"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="false"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="5"/>
+        <junctions.limit-turn-speed value="5.5"/>
+        <rectangular-lane-cut value="false"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="false"/>
+    </pedestrian>
+
+    <netedit>
+        <additional-files value="/mnt/c/Users/dellp/OneDrive/Desktop/NUSStuff/Y4S1/CS3263/project/traffic-light-control/networks/simple_cross_lad.xml"/>
+    </netedit>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <e2Detector id="e2_0" lane="E0_1" pos="63.89" length="10.00" freq="300.00" file="e2_0.xml"/>
+    <e2Detector id="e2_1" lane="E0_0" pos="64.07" length="10.00" freq="300.00" file="e2_1.xml"/>
+    <e2Detector id="e2_2" lane="-E1_0" pos="65.11" length="10.00" freq="300.00" file="e2_2.xml"/>
+    <e2Detector id="e2_3" lane="-E1_1" pos="65.02" length="10.00" freq="300.00" file="e2_3.xml"/>
+    <e2Detector id="e2_4" lane="-E3_0" pos="52.04" length="10.00" freq="300.00" file="e2_4.xml"/>
+    <e2Detector id="e2_5" lane="-E3_1" pos="51.76" length="10.00" freq="300.00" file="e2_5.xml"/>
+    <e2Detector id="e2_6" lane="-E2_0" pos="47.12" length="10.00" freq="300.00" file="e2_6.xml"/>
+    <e2Detector id="e2_7" lane="-E2_1" pos="47.70" length="10.00" freq="300.00" file="e2_7.xml"/>
+</additional>

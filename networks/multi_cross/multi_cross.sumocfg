@@ -1,7 +1,7 @@
 <configuration>
     <input>
         <net-file value="multi_cross.net.xml"/>
-        <route-files value="multi_cross.rou.xml"/>
+        <route-files value="multi_cross_ran.rou.xml"/>
         <additional-files value="multi_cross_lad.xml"/>
     </input>
 

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+    <!-- A -->
+    <flow id="A_E" begin="0" end="3600" color="blue" from="A" to="E" probability="0.0333"/>
+    <flow id="A_H" begin="0" end="3600" color="blue" from="A" to="H" probability="0.008"/>
+    <flow id="A_J" begin="0" end="3600" color="blue" from="A" to="J" probability="0.008"/>
+    <flow id="A_O" begin="0" end="3600" color="blue" from="A" to="O" probability="0.008"/>
+    <flow id="A_R" begin="0" end="3600" color="blue" from="A" to="R" probability="0.008"/>
+    <flow id="A_W" begin="0" end="3600" color="blue" from="A" to="W" probability="0.008"/>
+    <flow id="A_X" begin="0" end="3600" color="blue" from="A" to="X" probability="0.008"/>
+
+    <!-- F -->
+    <flow id="F_B" begin="0" end="3600" from="F" to="B" probability="0.0333"/>
+    <flow id="F_H" begin="0" end="3600" from="F" to="H" probability="0.008"/>
+    <flow id="F_J" begin="0" end="3600" from="F" to="J" probability="0.008"/>
+    <flow id="F_O" begin="0" end="3600" from="F" to="O" probability="0.008"/>
+    <flow id="F_R" begin="0" end="3600" from="F" to="R" probability="0.008"/>
+    <flow id="F_W" begin="0" end="3600" from="F" to="W" probability="0.008"/>
+    <flow id="F_X" begin="0" end="3600" from="F" to="X" probability="0.008"/>
+
+    <!-- G -->
+    <flow id="G_B" begin="0" end="3600" color="cyan" from="G" to="B" probability="0.008"/>
+    <flow id="G_E" begin="0" end="3600" color="cyan" from="G" to="E" probability="0.008"/>
+    <flow id="G_J" begin="0" end="3600" color="cyan" from="G" to="J" probability="0.0333"/>
+    <flow id="G_O" begin="0" end="3600" color="cyan" from="G" to="O" probability="0.008"/>
+    <flow id="G_R" begin="0" end="3600" color="cyan" from="G" to="R" probability="0.008"/>
+    <flow id="G_W" begin="0" end="3600" color="cyan" from="G" to="W" probability="0.008"/>
+    <flow id="G_X" begin="0" end="3600" color="cyan" from="G" to="X" probability="0.008"/>
+
+    <!-- K -->
+    <flow id="K_B" begin="0" end="3600" color="magenta" from="K" to="B" probability="0.008"/>
+    <flow id="K_E" begin="0" end="3600" color="magenta" from="K" to="E" probability="0.008"/>
+    <flow id="K_H" begin="0" end="3600" color="magenta" from="K" to="H" probability="0.0333"/>
+    <flow id="K_O" begin="0" end="3600" color="magenta" from="K" to="O" probability="0.008"/>
+    <flow id="K_R" begin="0" end="3600" color="magenta" from="K" to="R" probability="0.008"/>
+    <flow id="K_W" begin="0" end="3600" color="magenta" from="K" to="W" probability="0.008"/>
+    <flow id="K_X" begin="0" end="3600" color="magenta" from="K" to="X" probability="0.008"/>
+
+    <!-- N -->
+    <flow id="N_B" begin="0" end="3600" color="red" from="N" to="B" probability="0.008"/>
+    <flow id="N_E" begin="0" end="3600" color="red" from="N" to="E" probability="0.008"/>
+    <flow id="N_H" begin="0" end="3600" color="red" from="N" to="H" probability="0.008"/>
+    <flow id="N_J" begin="0" end="3600" color="red" from="N" to="J" probability="0.008"/>
+    <flow id="N_R" begin="0" end="3600" color="red" from="N" to="R" probability="0.0333"/>
+    <flow id="N_W" begin="0" end="3600" color="red" from="N" to="W" probability="0.008"/>
+    <flow id="N_X" begin="0" end="3600" color="red" from="N" to="X" probability="0.008"/>
+
+    <!-- S -->
+    <flow id="S_B" begin="0" end="3600" color="white" from="S" to="B" probability="0.008"/>
+    <flow id="S_E" begin="0" end="3600" color="white" from="S" to="E" probability="0.008"/>
+    <flow id="S_H" begin="0" end="3600" color="white" from="S" to="H" probability="0.008"/>
+    <flow id="S_J" begin="0" end="3600" color="white" from="S" to="J" probability="0.008"/>
+    <flow id="S_O" begin="0" end="3600" color="white" from="S" to="O" probability="0.0333"/>
+    <flow id="S_W" begin="0" end="3600" color="white" from="S" to="W" probability="0.008"/>
+    <flow id="S_X" begin="0" end="3600" color="white" from="S" to="X" probability="0.008"/>
+
+    <!-- V -->
+    <flow id="V_B" begin="0" end="3600" color="green" from="V" to="B" probability="0.008"/>
+    <flow id="V_E" begin="0" end="3600" color="green" from="V" to="E" probability="0.008"/>
+    <flow id="V_H" begin="0" end="3600" color="green" from="V" to="H" probability="0.008"/>
+    <flow id="V_J" begin="0" end="3600" color="green" from="V" to="J" probability="0.008"/>
+    <flow id="V_O" begin="0" end="3600" color="green" from="V" to="O" probability="0.008"/>
+    <flow id="V_R" begin="0" end="3600" color="green" from="V" to="R" probability="0.008"/>
+    <flow id="V_X" begin="0" end="3600" color="green" from="V" to="X" probability="0.0333"/>
+
+    <!-- Y -->
+    <flow id="Y_B" begin="0" end="3600" color="black" from="Y" to="B" probability="0.008"/>
+    <flow id="Y_E" begin="0" end="3600" color="black" from="Y" to="E" probability="0.008"/>
+    <flow id="Y_H" begin="0" end="3600" color="black" from="Y" to="H" probability="0.008"/>
+    <flow id="Y_J" begin="0" end="3600" color="black" from="Y" to="J" probability="0.008"/>
+    <flow id="Y_O" begin="0" end="3600" color="black" from="Y" to="O" probability="0.008"/>
+    <flow id="Y_R" begin="0" end="3600" color="black" from="Y" to="R" probability="0.008"/>
+    <flow id="Y_W" begin="0" end="3600" color="black" from="Y" to="W" probability="0.0333"/>
+
+</routes>

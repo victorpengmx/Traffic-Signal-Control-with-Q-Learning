@@ -24,6 +24,8 @@ STEP_LENGTH = 0.1           # seconds per SUMO step
 MIN_GREEN_SEC = 20         # minimum green in seconds
 MIN_GREEN_STEPS = int(MIN_GREEN_SEC / STEP_LENGTH)
 
+SWITCH_PENALTY = 3.0
+
 ACTIONS = [0, 1]           # 0 = keep, 1 = switch
 GAMMA = 0.9
 EPSILON = 0.1              # fixed epsilon (simple baseline)
@@ -149,9 +151,9 @@ def apply_action_for_tl(action, tl_id, current_step, last_switch_step_dict):
     Updates last_switch_step_dict[tl_id] when a switch occurs.
     """
     if action == 0:
-        return
+        return False
     if current_step - last_switch_step_dict[tl_id] < MIN_GREEN_STEPS:
-        return
+        return False
 
     # get number of phases for this TL
     program = traci.trafficlight.getAllProgramLogics(tl_id)[0]
@@ -160,6 +162,7 @@ def apply_action_for_tl(action, tl_id, current_step, last_switch_step_dict):
     next_phase = (current_phase + 1) % num_phases
     traci.trafficlight.setPhase(tl_id, next_phase)
     last_switch_step_dict[tl_id] = current_step
+    return True
 
 # -------------------------
 # Initialize multi-agent structures
@@ -265,8 +268,9 @@ for step in range(SIMULATION_STEPS):
     actions = {tl: select_action_for_tl(tl, states[tl]) for tl in TRAFFIC_LIGHTS}
 
     # 3) Apply actions (subject to MIN_GREEN constraint)
+    switched_flags = {}
     for tl in TRAFFIC_LIGHTS:
-        apply_action_for_tl(actions[tl], tl, step, last_switch_step)
+        switched_flags[tl] = apply_action_for_tl(actions[tl], tl, step, last_switch_step)
 
     # 4) Advance SUMO one step
     traci.simulationStep()
@@ -274,6 +278,16 @@ for step in range(SIMULATION_STEPS):
     # 5) Observe new states and compute rewards
     next_states = {tl: get_state(tl) for tl in TRAFFIC_LIGHTS}
     rewards = {tl: get_reward_from_state(next_states[tl]) for tl in TRAFFIC_LIGHTS}
+
+    # Apply switching penalty
+    for tl in TRAFFIC_LIGHTS:
+        reward = get_reward_from_state(next_states[tl])
+        # Apply switching penalty if TL switched
+        if switched_flags[tl]:
+            reward -= SWITCH_PENALTY
+        rewards[tl] = reward
+
+
     done = False
 
     # 6) Store transitions in per-agent replay buffers

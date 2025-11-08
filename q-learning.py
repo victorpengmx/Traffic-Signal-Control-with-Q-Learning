@@ -37,6 +37,8 @@ EPSILON = 0.1
 MIN_GREEN_TIME = 20
 MIN_STEPS_PER_PHASE = int(MIN_GREEN_TIME / STEP_LENGTH)
 
+SWITCH_PENALTY = 3.0  # penalize switching
+
 # Data
 step_history = []
 queue_history = []
@@ -154,6 +156,11 @@ for step in range(SIMULATION_STEPS + 1):
     # Next state and Q-value update
     next_state = get_state()
     reward = get_reward(next_state)
+    
+    # # Penalize switching action
+    # if action == 1:
+    #     reward -= SWITCH_PENALTY
+    
     update_q_value(state, action, reward, next_state)
 
     # Record metrics every 100 steps

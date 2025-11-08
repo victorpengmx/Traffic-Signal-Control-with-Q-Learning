@@ -37,6 +37,8 @@ EPSILON = 0.1
 MIN_GREEN_TIME = 25
 MIN_STEPS_PER_PHASE = int(MIN_GREEN_TIME / STEP_LENGTH)
 
+SWITCH_PENALTY = 3.0  # penalize switching
+
 INTERSECTIONS = [
     "Intersection1", "Intersection2", "Intersection3"
 ]
@@ -135,6 +137,11 @@ for step in range(SIMULATION_STEPS):
 
         # Compute cooperative reward
         reward = cooperative_reward(tl_id)
+        
+        # Penalize switching action
+        # if action == 1:
+        #     reward -= SWITCH_PENALTY
+        
         next_state = get_state(tl_id)
         update_q_value(tl_id, state, action, reward, next_state)
 

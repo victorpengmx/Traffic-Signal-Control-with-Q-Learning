@@ -35,8 +35,10 @@ GAMMA = 0.9
 EPSILON = 0.1
 
 # Hard constraint: minimum green time
-MIN_GREEN_TIME = 20
+MIN_GREEN_TIME = 15
 MIN_STEPS_PER_PHASE = int(MIN_GREEN_TIME / STEP_LENGTH)
+
+SWITCH_PENALTY = 3.0  # penalize switching
 
 traffic_lights = traci.trafficlight.getIDList()
 print(f"Detected {len(traffic_lights)} traffic lights: {traffic_lights}")
@@ -160,6 +162,11 @@ for step in range(SIMULATION_STEPS + 1):
 
         next_state = get_state(tl)
         reward = get_reward(next_state)
+
+        # Penalize switching action
+        if action == 1:
+            reward -= SWITCH_PENALTY
+
         update_q_value(tl, state, action, reward, next_state)
 
         total_queue += get_queue_length(tl)

@@ -52,6 +52,8 @@ MIN_GREEN_STEPS = int(MIN_GREEN_SEC / STEP_LENGTH)
 
 last_switch_step = -MIN_GREEN_STEPS
 
+SWITCH_PENALTY = 3.0  # penalize switching
+
 TRAFFIC_LIGHT = "cluster_J1_J2_J4_J6"
 
 class ReplayBuffer:
@@ -231,6 +233,11 @@ for step in range(SIMULATION_STEPS):
 
     new_state = get_state()
     reward = get_reward(new_state)
+
+    # Penalize switching action
+    if action == 1:
+        reward -= SWITCH_PENALTY
+
     done = False  # in continuous SUMO simulation, treat as non-terminal; could add episode logic if you wish
 
     replay_buffer.push(state, action, reward, new_state, done)

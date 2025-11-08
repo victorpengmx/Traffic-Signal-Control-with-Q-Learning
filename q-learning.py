@@ -17,7 +17,7 @@ else:
 
 # SUMO configuration (GUI enabled, runs automatically)
 sumo_config = [
-    'sumo-gui', '-c', 'networks/simple_cross.sumocfg',
+    'sumo-gui', '-c', 'networks/single_cross/simple_cross_lad.sumocfg',
     '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
@@ -34,8 +34,7 @@ ALPHA = 0.1
 GAMMA = 0.9       
 EPSILON = 0.1     
 
-# Hard constraint: minimum green time
-MIN_GREEN_TIME = 25
+MIN_GREEN_TIME = 20
 MIN_STEPS_PER_PHASE = int(MIN_GREEN_TIME / STEP_LENGTH)
 
 # Data
@@ -44,13 +43,26 @@ queue_history = []
 waiting_time_history = []
 
 # Q-table (state = simplified traffic condition, action = phase change or not)
-Q = {}
+Q_table = {}
 
-def get_queue_length():
-    # Total number of halted vehicles (queue length)
+def get_lane_queue_length(lane_id):
+    return traci.lanearea.getLastStepVehicleNumber(lane_id)
+
+def get_total_queue_length():
     total = 0
-    for lane_id in traci.lane.getIDList():
-        total += traci.lane.getLastStepHaltingNumber(lane_id)
+    incoming_lanes = set(traci.trafficlight.getControlledLanes(TRAFFIC_LIGHT))
+
+    detectors = [
+        det for det in traci.lanearea.getIDList()
+        if traci.lanearea.getLaneID(det) in incoming_lanes
+    ]
+    detectors.sort()
+
+    # Collect queue length from detectors
+    for det in detectors:
+        q = traci.lanearea.getLastStepVehicleNumber(det)
+        q_discrete = int(round(q / 1.0))
+        total += q_discrete
     return total
 
 def get_total_waiting_time():
@@ -59,28 +71,59 @@ def get_total_waiting_time():
     total = sum(traci.vehicle.getWaitingTime(vid) for vid in vehicle_ids)
     return total
 
+def get_reward(state):
+    total_queue = sum(state[:-1])  # exclude current_phase
+    return -float(total_queue)
+
 def get_state():
-    # Define state as discretized queue length (rounded to nearest 5 vehicles)
-    q_len = get_queue_length()
-    return int(round(q_len / 5.0) * 5)
+    """
+    State = tuple of queue lengths from lane-area detectors for incoming lanes
+             + current traffic light phase.
+    """
+    incoming_lanes = set(traci.trafficlight.getControlledLanes(TRAFFIC_LIGHT))
+
+    detectors = [
+        det for det in traci.lanearea.getIDList()
+        if traci.lanearea.getLaneID(det) in incoming_lanes
+    ]
+
+    detectors.sort()
+
+    # Collect queue length from each detector
+    lane_queues = []
+    for det in detectors:
+        q = traci.lanearea.getLastStepVehicleNumber(det)
+        q_discrete = int(round(q / 1.0))
+        lane_queues.append(q_discrete)
+
+    # If no detectors exist, use halting number
+    if len(detectors) == 0:
+        incoming_lanes = sorted(list(incoming_lanes))
+        for lane in incoming_lanes:
+            q = traci.lane.getLastStepHaltingNumber(lane)
+            lane_queues.append(q)
+
+    current_phase = traci.trafficlight.getPhase(TRAFFIC_LIGHT)
+    state = tuple(lane_queues + [current_phase])
+    return state
 
 def choose_action(state):
     # Epsilon-greedy policy
-    if random.uniform(0, 1) < EPSILON or state not in Q:
+    if random.uniform(0, 1) < EPSILON or state not in Q_table:
         return random.choice(ACTIONS)
     else:
-        return np.argmax(Q[state])
+        return np.argmax(Q_table[state])
 
 def update_q_value(state, action, reward, next_state):
     # Initialize Q-values if not present
-    if state not in Q:
-        Q[state] = np.zeros(len(ACTIONS))
-    if next_state not in Q:
-        Q[next_state] = np.zeros(len(ACTIONS))
+    if state not in Q_table:
+        Q_table[state] = np.zeros(len(ACTIONS))
+    if next_state not in Q_table:
+        Q_table[next_state] = np.zeros(len(ACTIONS))
 
     # Q-learning update rule
-    Q[state][action] = Q[state][action] + ALPHA * (
-        reward + GAMMA * np.max(Q[next_state]) - Q[state][action]
+    Q_table[state][action] = Q_table[state][action] + ALPHA * (
+        reward + GAMMA * np.max(Q_table[next_state]) - Q_table[state][action]
     )
 
 # Simulation Loop
@@ -108,16 +151,14 @@ for step in range(SIMULATION_STEPS + 1):
     else:
         phase_step_counter += 1
 
-    # Reward based on total waiting time (lower waiting = better)
-    reward = -get_total_waiting_time()
-
     # Next state and Q-value update
     next_state = get_state()
+    reward = get_reward(next_state)
     update_q_value(state, action, reward, next_state)
 
     # Record metrics every 100 steps
     if step % 100 == 0:
-        total_q = get_queue_length()
+        total_q = get_total_queue_length()
         total_w = get_total_waiting_time()
         print(f"Step {step}: Queue={total_q}, WaitingTime={total_w:.2f}")
 

@@ -1,0 +1,15 @@
+<configuration>
+    <input>
+        <net-file value="multi_cross.net.xml"/>
+        <route-files value="multi_cross.rou.xml"/>
+        <additional-files value="multi_cross_lad.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="1000"/>
+    </time>
+
+    <output>
+    </output>
+</configuration>

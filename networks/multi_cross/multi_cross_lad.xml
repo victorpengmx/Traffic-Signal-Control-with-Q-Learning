@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-11-07 12:13:33 by Eclipse SUMO netedit Version 1.12.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <sumo-net-file value="/mnt/c/Users/dellp/OneDrive/Desktop/NUSStuff/Y4S1/CS3263/project/traffic-light-control/networks/multi_cross/multi_cross.net.xml"/>
+    </input>
+
+    <output>
+        <output-file value="/mnt/c/Users/dellp/OneDrive/Desktop/NUSStuff/Y4S1/CS3263/project/traffic-light-control/networks/multi_cross/multi_cross.net.xml"/>
+    </output>
+
+    <processing>
+        <geometry.min-radius.fix.railways value="false"/>
+        <geometry.max-grade.fix value="false"/>
+        <offset.disable-normalization value="true"/>
+        <lefthand value="false"/>
+    </processing>
+
+    <junctions>
+        <no-turnarounds value="true"/>
+        <junctions.corner-detail value="5"/>
+        <junctions.limit-turn-speed value="5.5"/>
+        <rectangular-lane-cut value="false"/>
+    </junctions>
+
+    <pedestrian>
+        <walkingareas value="false"/>
+    </pedestrian>
+
+    <netedit>
+        <additional-files value="/mnt/c/Users/dellp/OneDrive/Desktop/NUSStuff/Y4S1/CS3263/project/traffic-light-control/networks/multi_cross/multi_cross_lad.xml"/>
+    </netedit>
+
+    <report>
+        <aggregate-warnings value="5"/>
+    </report>
+
+</configuration>
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <e2Detector id="e2_0" lane="S_0" pos="64.83" length="10.00" freq="300.00" file="e2_0.xml"/>
+    <e2Detector id="e2_1" lane="S_1" pos="65.09" length="10.00" freq="300.00" file="e2_1.xml"/>
+    <e2Detector id="e2_10" lane="P_1" pos="40.67" length="10.00" freq="300.00" file="e2_10.xml"/>
+    <e2Detector id="e2_11" lane="P_0" pos="40.55" length="10.00" freq="300.00" file="e2_11.xml"/>
+    <e2Detector id="e2_12" lane="D_0" pos="87.92" length="10.00" freq="300.00" file="e2_12.xml"/>
+    <e2Detector id="e2_13" lane="D_1" pos="88.05" length="10.00" freq="300.00" file="e2_13.xml"/>
+    <e2Detector id="e2_14" lane="C_1" pos="88.83" length="10.00" freq="300.00" file="e2_14.xml"/>
+    <e2Detector id="e2_15" lane="C_0" pos="89.67" length="10.00" freq="300.00" file="e2_15.xml"/>
+    <e2Detector id="e2_16" lane="Y_0" pos="60.48" length="10.00" freq="300.00" file="e2_16.xml"/>
+    <e2Detector id="e2_17" lane="Y_1" pos="60.86" length="10.00" freq="300.00" file="e2_17.xml"/>
+    <e2Detector id="e2_18" lane="F_0" pos="64.38" length="10.00" freq="300.00" file="e2_18.xml"/>
+    <e2Detector id="e2_19" lane="F_1" pos="64.26" length="10.00" freq="300.00" file="e2_19.xml"/>
+    <e2Detector id="e2_2" lane="A_1" pos="71.22" length="10.00" freq="300.00" file="e2_2.xml"/>
+    <e2Detector id="e2_20" lane="V_1" pos="65.10" length="10.00" freq="300.00" file="e2_20.xml"/>
+    <e2Detector id="e2_21" lane="V_0" pos="65.04" length="10.00" freq="300.00" file="e2_21.xml"/>
+    <e2Detector id="e2_22" lane="Q_0" pos="38.77" length="10.00" freq="300.00" file="e2_22.xml"/>
+    <e2Detector id="e2_23" lane="Q_1" pos="39.10" length="10.00" freq="300.00" file="e2_23.xml"/>
+    <e2Detector id="e2_3" lane="A_0" pos="72.07" length="10.00" freq="300.00" file="e2_3.xml"/>
+    <e2Detector id="e2_4" lane="G_1" pos="70.68" length="10.00" freq="300.00" file="e2_4.xml"/>
+    <e2Detector id="e2_5" lane="G_0" pos="71.05" length="10.00" freq="300.00" file="e2_5.xml"/>
+    <e2Detector id="e2_6" lane="N_1" pos="60.51" length="10.00" freq="300.00" file="e2_6.xml"/>
+    <e2Detector id="e2_7" lane="N_0" pos="60.62" length="10.00" freq="300.00" file="e2_7.xml"/>
+    <e2Detector id="e2_8" lane="K_0" pos="56.15" length="10.00" freq="300.00" file="e2_8.xml"/>
+    <e2Detector id="e2_9" lane="K_1" pos="56.53" length="10.00" freq="300.00" file="e2_9.xml"/>
+</additional>

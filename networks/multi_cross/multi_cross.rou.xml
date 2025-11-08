@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-10-31 00:54:07 by Eclipse SUMO netedit Version 1.12.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <flow id="A_E" begin="0.00" color="blue" from="A" to="E" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="A_H" begin="0.00" color="blue" from="A" to="H" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="A_J" begin="0.00" color="blue" from="A" to="J" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="A_O" begin="0.00" color="blue" from="A" to="O" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="A_R" begin="0.00" color="blue" from="A" to="R" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="A_W" begin="0.00" color="blue" from="A" to="W" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="A_X" begin="0.00" color="blue" from="A" to="X" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="F_B" begin="0.00" from="F" to="B" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="F_H" begin="0.00" from="F" to="H" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="F_J" begin="0.00" from="F" to="J" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="F_O" begin="0.00" from="F" to="O" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="F_R" begin="0.00" from="F" to="R" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="F_W" begin="0.00" from="F" to="W" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="F_X" begin="0.00" from="F" to="X" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="G_B" begin="0.00" color="cyan" from="G" to="B" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="G_E" begin="0.00" color="cyan" from="G" to="E" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="G_J" begin="0.00" color="cyan" from="G" to="J" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="G_O" begin="0.00" color="cyan" from="G" to="O" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="G_R" begin="0.00" color="cyan" from="G" to="R" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="G_W" begin="0.00" color="cyan" from="G" to="W" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="G_X" begin="0.00" color="cyan" from="G" to="X" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="K_B" begin="0.00" color="magenta" from="K" to="B" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="K_E" begin="0.00" color="magenta" from="K" to="E" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="K_H" begin="0.00" color="magenta" from="K" to="H" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="K_O" begin="0.00" color="magenta" from="K" to="O" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="K_R" begin="0.00" color="magenta" from="K" to="R" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="K_W" begin="0.00" color="magenta" from="K" to="W" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="K_X" begin="0.00" color="magenta" from="K" to="X" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="N_B" begin="0.00" color="red" from="N" to="B" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="N_E" begin="0.00" color="red" from="N" to="E" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="N_H" begin="0.00" color="red" from="N" to="H" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="N_J" begin="0.00" color="red" from="N" to="J" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="N_R" begin="0.00" color="red" from="N" to="R" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="N_V" begin="0.00" color="red" from="N" to="W" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="N_X" begin="0.00" color="red" from="N" to="X" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="S_B" begin="0.00" color="white" from="S" to="B" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="S_E" begin="0.00" color="white" from="S" to="E" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="S_H" begin="0.00" color="white" from="S" to="H" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="S_J" begin="0.00" color="white" from="S" to="J" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="S_O" begin="0.00" color="white" from="S" to="O" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="S_W" begin="0.00" color="white" from="S" to="W" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="S_X" begin="0.00" color="white" from="S" to="X" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_B" begin="0.00" color="green" from="V" to="B" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_E" begin="0.00" color="green" from="V" to="E" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_H" begin="0.00" color="green" from="V" to="H" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_J" begin="0.00" color="green" from="V" to="J" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_O" begin="0.00" color="green" from="V" to="O" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_R" begin="0.00" color="green" from="V" to="R" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="V_X" begin="0.00" color="green" from="V" to="X" end="3600.00" vehsPerHour="400.00"/>
+    <flow id="Y_B" begin="0.00" color="black" from="Y" to="B" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="Y_E" begin="0.00" color="black" from="Y" to="E" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="Y_H" begin="0.00" color="black" from="Y" to="H" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="Y_J" begin="0.00" color="black" from="Y" to="J" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="Y_O" begin="0.00" color="black" from="Y" to="O" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="Y_R" begin="0.00" color="black" from="Y" to="R" end="3600.00" vehsPerHour="100.00"/>
+    <flow id="Y_W" begin="0.00" color="black" from="Y" to="W" end="3600.00" vehsPerHour="400.00"/>
+</routes>

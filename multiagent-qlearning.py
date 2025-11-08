@@ -1,3 +1,4 @@
+# multiple independent agents
 import os
 import sys
 import traci
@@ -17,7 +18,7 @@ else:
 
 # SUMO configuration
 sumo_config = [
-    'sumo-gui', '-c', 'networks/multi_cross.sumocfg',
+    'sumo-gui', '-c', 'networks/multi_cross/multi_cross.sumocfg',
     '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
@@ -34,149 +35,168 @@ GAMMA = 0.9
 EPSILON = 0.1
 
 # Hard constraint: minimum green time
-MIN_GREEN_TIME = 25
+MIN_GREEN_TIME = 20
 MIN_STEPS_PER_PHASE = int(MIN_GREEN_TIME / STEP_LENGTH)
-
-INTERSECTIONS = [
-    "Intersection1", "Intersection2", "Intersection3"
-]
-
-# Neighbors for cooperative info sharing
-NEIGHBORS = {
-    "Intersection1": ["Intersection2", "Intersection3"],
-    "Intersection2": ["Intersection1"],
-    "Intersection3": ["Intersection1"]
-}
 
 traffic_lights = traci.trafficlight.getIDList()
 print(f"Detected {len(traffic_lights)} traffic lights: {traffic_lights}")
 
+# Data
+step_history = []
+avg_queue_history = []
+avg_waiting_time_history = []
+
 phase_step_counter = {tl: 0 for tl in traffic_lights}
 
-# Initialize Q-tables
-Q = {tl: {} for tl in INTERSECTIONS}
+# Initialize Q-tables per intersection
+Q_tables = {tl: {} for tl in traffic_lights}
 
-# data
-system_step = []
-system_total_queue = []
-system_total_wait = []
-system_total_reward = []
+# Track current phase per traffic light
+current_phases = {tl: traci.trafficlight.getPhase(tl) for tl in traffic_lights}
 
-def get_lane_queue_length(lane_ids):
-    # Return total number of halted vehicles for given lanes
-    return sum(traci.lane.getLastStepHaltingNumber(l) for l in lane_ids)
+def get_lane_queue_length(lane_id):
+    return traci.lanearea.getLastStepVehicleNumber(lane_id)
 
-def get_state(tl_id):
-    # Define state as discretized total queue length (rounded to nearest 5 vehicles)
-    incoming_lanes = traci.trafficlight.getControlledLanes(tl_id)
-    queue = get_lane_queue_length(incoming_lanes)
-    return int(round(queue / 5.0) * 5)
+def get_queue_length(tl):
+    total = 0
+    incoming_lanes = set(traci.trafficlight.getControlledLanes(tl))
 
-def choose_action(tl_id, state):
-    # Epsilon-greedy policy
-    if random.uniform(0, 1) < EPSILON or state not in Q[tl_id]:
+    detectors = [
+        det for det in traci.lanearea.getIDList()
+        if traci.lanearea.getLaneID(det) in incoming_lanes
+    ]
+    detectors.sort()
+
+    # Collect queue length from detectors
+    for det in detectors:
+        q = traci.lanearea.getLastStepVehicleNumber(det)
+        q_discrete = int(round(q / 1.0))
+        total += q_discrete
+    return total
+
+def get_total_waiting_time(tl):
+    # Return total waiting time for vehicles approaching traffic light
+    incoming_lanes = traci.trafficlight.getControlledLanes(tl)
+    veh_ids = set()
+    for lane in incoming_lanes:
+        veh_ids.update(traci.lane.getLastStepVehicleIDs(lane))
+    return sum(traci.vehicle.getWaitingTime(v) for v in veh_ids)
+
+def get_reward(state):
+    total_queue = sum(state[:-1])  # exclude current_phase
+    return -float(total_queue)
+
+def get_state(tl):
+    incoming_lanes = set(traci.trafficlight.getControlledLanes(tl))
+
+    detectors = [
+        det for det in traci.lanearea.getIDList()
+        if traci.lanearea.getLaneID(det) in incoming_lanes
+    ]
+    detectors.sort()
+
+    # Collect queue length from each detector
+    lane_queues = []
+    for det in detectors:
+        q = traci.lanearea.getLastStepVehicleNumber(det)
+        q_discrete = int(round(5.0 * q / 5.0))
+        lane_queues.append(q_discrete)
+
+    # If no detectors exist, use halting number
+    if len(detectors) == 0:
+        incoming_lanes = sorted(list(incoming_lanes))
+        for lane in incoming_lanes:
+            q = traci.lane.getLastStepHaltingNumber(lane)
+            lane_queues.append(q)
+
+    current_phase = traci.trafficlight.getPhase(tl)
+    state = tuple(lane_queues + [current_phase])
+    return state
+
+def choose_action(tl, state):
+    # Epsilon-greedy policy per intersection
+    if random.uniform(0, 1) < EPSILON or state not in Q_tables[tl]:
         return random.choice(ACTIONS)
-    return np.argmax(Q[tl_id][state])
+    else:
+        return np.argmax(Q_tables[tl][state])
 
-def update_q_value(tl_id, state, action, reward, next_state):
-    if state not in Q[tl_id]:
-        Q[tl_id][state] = np.zeros(len(ACTIONS))
-    if next_state not in Q[tl_id]:
-        Q[tl_id][next_state] = np.zeros(len(ACTIONS))
-    Q[tl_id][state][action] += ALPHA * (
-        reward + GAMMA * np.max(Q[tl_id][next_state]) - Q[tl_id][state][action]
+def update_q_value(tl, state, action, reward, next_state):
+    # Independent Q-learning update for each intersection
+    if state not in Q_tables[tl]:
+        Q_tables[tl][state] = np.zeros(len(ACTIONS))
+    if next_state not in Q_tables[tl]:
+        Q_tables[tl][next_state] = np.zeros(len(ACTIONS))
+
+    # Q-learning update rule
+    Q_tables[tl][state][action] = Q_tables[tl][state][action] + ALPHA * (
+        reward + GAMMA * np.max(Q_tables[tl][next_state]) - Q_tables[tl][state][action]
     )
 
-def get_total_waiting_time(tl_id):
-    # Return total waiting time for vehicles approaching traffic light
-    lanes = traci.trafficlight.getControlledLanes(tl_id)
-    vehs = [v for l in lanes for v in traci.lane.getLastStepVehicleIDs(l)]
-    return sum(traci.vehicle.getWaitingTime(v) for v in vehs)
-
-def cooperative_reward(tl_id):
-    # Reward = negative of (own waiting + neighbor queue)
-    local_wait = get_total_waiting_time(tl_id)
-    neighbor_queues = []
-    for nb in NEIGHBORS.get(tl_id, []):
-        n_lanes = traci.trafficlight.getControlledLanes(nb)
-        n_queue = get_lane_queue_length(n_lanes)
-        neighbor_queues.append(n_queue)
-    avg_neighbor_queue = np.mean(neighbor_queues) if neighbor_queues else 0
-    return - (local_wait + 0.5 * avg_neighbor_queue)
-
-print("\n=== Cooperative Multi-Agent Q-Learning Traffic Control ===")
-
 # Simulation loop
-for step in range(SIMULATION_STEPS):
+print("\n=== Running Multi-Intersection Q-Learning Traffic Control ===")
+
+for step in range(SIMULATION_STEPS + 1):
+    # Automatically stop if no vehicles left
     if traci.simulation.getMinExpectedNumber() <= 0:
+        print("No more vehicles — stopping simulation.")
         break
 
     traci.simulationStep()
 
-    total_reward = 0
     total_queue = 0
-    total_wait = 0
+    total_waiting = 0
 
-    for tl_id in INTERSECTIONS:
-        state = get_state(tl_id)
-        action = choose_action(tl_id, state)
+    # Loop through each intersection
+    for tl in traffic_lights:
+        state = get_state(tl)
+        action = choose_action(tl, state)
 
-        # Execute action
-        if action == 1 and phase_step_counter[tl_id] >= MIN_STEPS_PER_PHASE:
-            current_phase = traci.trafficlight.getPhase(tl_id)
-            n_phases = len(traci.trafficlight.getCompleteRedYellowGreenDefinition(tl_id)[0].phases)
-            traci.trafficlight.setPhase(tl_id, (current_phase + 1) % n_phases)
+        # Apply action (0 = keep phase, 1 = switch phase)
+        if action == 1 and phase_step_counter[tl] >= MIN_STEPS_PER_PHASE:
+            current_phases[tl] = (current_phases[tl] + 1) % len(
+                traci.trafficlight.getCompleteRedYellowGreenDefinition(tl)[0].phases
+            )
+            traci.trafficlight.setPhase(tl, current_phases[tl])
 
-        # Compute cooperative reward
-        reward = cooperative_reward(tl_id)
-        next_state = get_state(tl_id)
-        update_q_value(tl_id, state, action, reward, next_state)
+        next_state = get_state(tl)
+        reward = get_reward(next_state)
+        update_q_value(tl, state, action, reward, next_state)
 
-        # Aggregate metrics
-        total_reward += reward
-        total_queue += get_lane_queue_length(traci.trafficlight.getControlledLanes(tl_id))
-        total_wait += get_total_waiting_time(tl_id)
+        total_queue += get_queue_length(tl)
+        total_waiting += get_total_waiting_time(tl)
 
-    # Record data
-    system_step.append(step)
-    system_total_queue.append(total_queue)
-    system_total_wait.append(total_wait)
-    system_total_reward.append(total_reward)
-
+    # Record every 100 steps
     if step % 100 == 0:
-        print(f"Step {step}: TotalQueue={total_queue}, TotalWait={total_wait:.2f}, TotalReward={total_reward:.2f}")
+        avg_q = total_queue / len(traffic_lights)
+        avg_w = total_waiting / len(traffic_lights)
+        print(f"Step {step}: AvgQueue={avg_q:.2f}, AvgWait={avg_w:.2f}")
 
-# shutdown SUMO
+        step_history.append(step)
+        avg_queue_history.append(avg_q)
+        avg_waiting_time_history.append(avg_w)
+
+# Clean shutdown
 traci.close(False)
 print("\nSimulation complete. SUMO closed automatically.")
 
-# Plots
-plt.figure(figsize=(10, 6))
-plt.plot(system_step, system_total_queue, label="Total Queue Length")
-plt.title("System-Wide Queue Length (Cooperative Multi-Agent Q-Learning)")
+# Plot queue length
+plt.figure(figsize=(8, 6))
+plt.plot(step_history, avg_queue_history, marker='o', label="Average Queue Length")
+plt.title("Average Queue Length over Time (Multi-Agent Q-Learning)")
 plt.xlabel("Simulation Step")
-plt.ylabel("Total Queue Length (vehicles)")
+plt.ylabel("Average Queue Length (vehicles)")
 plt.legend()
 plt.grid(True)
-plt.savefig(DIRECTORY_PATH + "cooperative-qlearning-queuelength.png")
+plt.savefig(DIRECTORY_PATH + "/multiagent-qlearning-queuelength.png")
 plt.show()
 
-plt.figure(figsize=(10, 6))
-plt.plot(system_step, system_total_wait, label="Total Waiting Time")
-plt.title("System-Wide Waiting Time (Cooperative Multi-Agent Q-Learning)")
+# Plot waiting time
+plt.figure(figsize=(8, 6))
+plt.plot(step_history, avg_waiting_time_history, marker='o', label="Average Waiting Time")
+plt.title("Average Waiting Time over Time (Multi-Agent Q-Learning)")
 plt.xlabel("Simulation Step")
-plt.ylabel("Total Waiting Time (s)")
+plt.ylabel("Average Waiting Time (s)")
 plt.legend()
 plt.grid(True)
-plt.savefig(DIRECTORY_PATH + "cooperative-qlearning-waitingtime.png")
-plt.show()
-
-plt.figure(figsize=(10, 6))
-plt.plot(system_step, system_total_reward, label="Total System Reward")
-plt.title("System-Wide Reward (Cooperative Multi-Agent Q-Learning)")
-plt.xlabel("Simulation Step")
-plt.ylabel("Reward")
-plt.legend()
-plt.grid(True)
-plt.savefig(DIRECTORY_PATH + "cooperative-qlearning-reward.png")
+plt.savefig(DIRECTORY_PATH + "/multiagent-qlearning-waitingtime.png")
 plt.show()

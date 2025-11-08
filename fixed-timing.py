@@ -15,7 +15,7 @@ else:
 
 # SUMO configuration
 sumo_config = [
-    'sumo-gui', '-c', 'networks/simple_cross.sumocfg',
+    'sumo-gui', '-c', 'networks/simple_cross_lad.sumocfg',
     '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
@@ -26,20 +26,33 @@ traci.gui.setSchema("View #0", "real world")
 # Parameters
 SIMULATION_STEPS = 10000
 TRAFFIC_LIGHT = "cluster_J1_J2_J4_J6"
-GREEN_DURATION = 60
-STEP_LENGTH = 0.1
-STEPS_PER_PHASE = int(GREEN_DURATION / STEP_LENGTH)
+# GREEN_DURATION = 60
+# STEP_LENGTH = 0.1
+# STEPS_PER_PHASE = int(GREEN_DURATION / STEP_LENGTH)
 
 # Data
 step_history = []
 queue_history = []
 waiting_time_history = []
 
-def get_queue_length():
-    # Total number of halted vehicles (queue length)
+def get_lane_queue_length(lane_id):
+    return traci.lanearea.getLastStepVehicleNumber(lane_id)
+
+def get_total_queue_length():
     total = 0
-    for lane_id in traci.lane.getIDList():
-        total += traci.lane.getLastStepHaltingNumber(lane_id)
+    incoming_lanes = set(traci.trafficlight.getControlledLanes(TRAFFIC_LIGHT))
+
+    detectors = [
+        det for det in traci.lanearea.getIDList()
+        if traci.lanearea.getLaneID(det) in incoming_lanes
+    ]
+    detectors.sort()
+
+    # Collect queue length from detectors
+    for det in detectors:
+        q = traci.lanearea.getLastStepVehicleNumber(det)
+        q_discrete = int(round(q / 1.0))
+        total += q_discrete
     return total
 
 def get_total_waiting_time():
@@ -52,21 +65,13 @@ def get_total_waiting_time():
 print("\n=== Running Fixed-Timing Control ===")
 phase_step_counter = 0
 
+# Traffic light phase change follows tlLogic in the .net.xml file
 for step in range(SIMULATION_STEPS):
     traci.simulationStep()
 
-    # Change phase when fixed duration elapsed
-    if phase_step_counter >= STEPS_PER_PHASE:
-        current_phase = traci.trafficlight.getPhase(TRAFFIC_LIGHT)
-        next_phase = (current_phase + 1) % traci.trafficlight.getCompleteRedYellowGreenDefinition(TRAFFIC_LIGHT)[0].phases.__len__()
-        traci.trafficlight.setPhase(TRAFFIC_LIGHT, next_phase)
-        phase_step_counter = 0
-    else:
-        phase_step_counter += 1
-
     # Record metrics every 100 steps
     if step % 100 == 0:
-        total_q = get_queue_length()
+        total_q = get_total_queue_length()
         total_w = get_total_waiting_time()
         print(f"Step {step}: Queue={total_q}, WaitingTime={total_w:.2f}")
 

@@ -94,15 +94,21 @@ def get_total_waiting_time(tl_id):
     return sum(traci.vehicle.getWaitingTime(v) for v in vehs)
 
 def cooperative_reward(tl_id):
-    # Reward = negative of (own waiting + neighbor queue)
-    local_wait = get_total_waiting_time(tl_id)
+    # Local queue
+    local_lanes = traci.trafficlight.getControlledLanes(tl_id)
+    local_queue = get_lane_queue_length(local_lanes)
+
+    # Neighbor queues
     neighbor_queues = []
     for nb in NEIGHBORS.get(tl_id, []):
         n_lanes = traci.trafficlight.getControlledLanes(nb)
-        n_queue = get_lane_queue_length(n_lanes)
-        neighbor_queues.append(n_queue)
+        neighbor_queues.append(get_lane_queue_length(n_lanes))
+
     avg_neighbor_queue = np.mean(neighbor_queues) if neighbor_queues else 0
-    return - (local_wait + 0.5 * avg_neighbor_queue)
+
+    # Cooperative queue-based reward
+    return - (local_queue + 0.5 * avg_neighbor_queue)
+
 
 print("\n=== Cooperative Multi-Agent Q-Learning Traffic Control ===")
 
@@ -158,7 +164,7 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Total Queue Length (vehicles)")
 plt.legend()
 plt.grid(True)
-plt.savefig(DIRECTORY_PATH + "/cooperative-qlearning-queuelength.png")
+plt.savefig(DIRECTORY_PATH + "/cooperative-qlearning-simple-queuelength.png")
 plt.show()
 
 plt.figure(figsize=(10, 6))
@@ -168,7 +174,7 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Total Waiting Time (s)")
 plt.legend()
 plt.grid(True)
-plt.savefig(DIRECTORY_PATH + "/cooperative-qlearning-waitingtime.png")
+plt.savefig(DIRECTORY_PATH + "/cooperative-qlearning-simple-waitingtime.png")
 plt.show()
 
 plt.figure(figsize=(10, 6))
@@ -178,5 +184,5 @@ plt.xlabel("Simulation Step")
 plt.ylabel("Reward")
 plt.legend()
 plt.grid(True)
-plt.savefig(DIRECTORY_PATH + "/cooperative-qlearning-reward.png")
+plt.savefig(DIRECTORY_PATH + "/cooperative-qlearning-simple-reward.png")
 plt.show()

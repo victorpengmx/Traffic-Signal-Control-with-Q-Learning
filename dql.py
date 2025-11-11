@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import random
@@ -24,7 +25,7 @@ else:
 
 # SUMO configuration (GUI enabled, runs automatically)
 sumo_config = [
-    'sumo-gui', '-c', 'networks/simple_cross_lad.sumocfg',
+    'sumo-gui', '-c', 'networks/simple_cross.sumocfg',
     '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
@@ -220,6 +221,12 @@ queue_history = []
 waiting_time_history = []
 cumulative_reward = 0.0
 
+def save_metric_history(tag, metric, steps, values):
+    """Persist metric history for offline comparison plots."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
+
 print("\n=== Starting DQN training (PyTorch) ===")
 
 for step in range(SIMULATION_STEPS):
@@ -268,6 +275,9 @@ traci.close()
 print("Training completed. Policy net:")
 print(policy_net)
 
+save_metric_history("dql", "waiting", step_history, waiting_time_history)
+save_metric_history("dql", "queue", step_history, queue_history)
+
 # Plot cumulative reward
 plt.figure(figsize=(8,6))
 plt.plot(step_history, reward_history, label="Cumulative Reward")
@@ -275,6 +285,9 @@ plt.xlabel("Step")
 plt.ylabel("Cumulative Reward")
 plt.legend()
 plt.grid(True)
+plt.savefig(DIRECTORY_PATH + "/dql-reward.png")
+plt.show()
+
 
 # Plot Queue Length
 plt.figure(figsize=(8, 6))
@@ -297,4 +310,3 @@ plt.legend()
 plt.grid(True)
 plt.savefig(DIRECTORY_PATH + "/dql-waitingtime.png")
 plt.show()
-

@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import traci
@@ -9,6 +10,9 @@ DIRECTORY_PATH = "results"
 os.makedirs(DIRECTORY_PATH, exist_ok=True)
 
 # SUMO environment setup
+os.environ.setdefault("SUMO_HOME", "/opt/homebrew/Cellar/sumo/1.20.0/share/sumo")
+# os.environ.setdefault("SUMO_HOME", "/Users/sornsornah/Downloads/Traffic-Signal-Control-with-Q-Learning-main/sumo")
+
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
     sys.path.append(tools)
@@ -63,6 +67,12 @@ system_step = []
 system_total_queue = []
 system_total_wait = []
 system_total_reward = []
+
+def save_metric_history(tag, metric, steps, values):
+    """Persist metric history so other scripts can combine results."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
 
 def get_lane_queue_length(lane_ids):
     # Return total number of halted vehicles for given lanes
@@ -132,7 +142,7 @@ for step in range(SIMULATION_STEPS):
         # Execute action
         if action == 1 and phase_step_counter[tl_id] >= MIN_STEPS_PER_PHASE:
             current_phase = traci.trafficlight.getPhase(tl_id)
-            n_phases = len(traci.trafficlight.getCompleteRedYellowGreenDefinition(tl_id)[0].phases)
+            n_phases = len(traci.trafficlight.get   CompleteRedYellowGreenDefinition(tl_id)[0].phases)
             traci.trafficlight.setPhase(tl_id, (current_phase + 1) % n_phases)
 
         # Compute cooperative reward
@@ -162,6 +172,9 @@ for step in range(SIMULATION_STEPS):
 # shutdown SUMO
 traci.close(False)
 print("\nSimulation complete. SUMO closed automatically.")
+
+save_metric_history("cooperative-qlearning-simple", "waiting", system_step, system_total_wait)
+save_metric_history("cooperative-qlearning-simple", "queue", system_step, system_total_queue)
 
 # Plots
 plt.figure(figsize=(10, 6))

@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import random
@@ -25,7 +26,7 @@ MIN_GREEN_SEC = 20         # minimum green in seconds
 MIN_GREEN_STEPS = int(MIN_GREEN_SEC / STEP_LENGTH)
 
 SWITCH_PENALTY = 3.0
-
+    
 ACTIONS = [0, 1]           # 0 = keep, 1 = switch
 GAMMA = 0.9
 EPSILON = 0.1              # fixed epsilon (simple baseline)
@@ -253,6 +254,12 @@ system_steps = []
 system_total_queue = []
 system_total_wait = []
 system_total_reward = []
+
+def save_metric_history(tag, metric, steps, values):
+    """Persist metric history for offline comparison plots."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
 cumulative_rewards_per_tl = {tl: 0.0 for tl in TRAFFIC_LIGHTS}
 total_cumulative_reward = 0.0
 
@@ -340,6 +347,9 @@ for step in range(SIMULATION_STEPS):
 # -------------------------
 traci.close()
 print("SUMO closed. Training finished.")
+
+save_metric_history("multiagent-dql", "waiting", system_steps, system_total_wait)
+save_metric_history("multiagent-dql", "queue", system_steps, system_total_queue)
 
 # -------------------------
 # Plots

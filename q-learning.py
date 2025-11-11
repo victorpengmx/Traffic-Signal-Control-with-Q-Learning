@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import traci
@@ -43,6 +44,12 @@ SWITCH_PENALTY = 3.0  # penalize switching
 step_history = []
 queue_history = []
 waiting_time_history = []
+
+def save_metric_history(tag, metric, steps, values):
+    """Persist metric history for cross-experiment plotting."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
 
 # Q-table (state = simplified traffic condition, action = phase change or not)
 Q_table = {}
@@ -107,6 +114,7 @@ def get_state():
 
     current_phase = traci.trafficlight.getPhase(TRAFFIC_LIGHT)
     state = tuple(lane_queues + [current_phase])
+    print(state)
     return state
 
 def choose_action(state):
@@ -176,6 +184,9 @@ for step in range(SIMULATION_STEPS + 1):
 # Clean shutdown
 traci.close(False)
 print("\nSimulation complete. SUMO closed automatically.")
+
+save_metric_history("q-learning", "waiting", step_history, waiting_time_history)
+save_metric_history("q-learning", "queue", step_history, queue_history)
 
 # Plot Queue Length
 plt.figure(figsize=(8, 6))

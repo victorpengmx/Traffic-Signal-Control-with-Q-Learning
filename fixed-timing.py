@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import traci
@@ -5,6 +6,8 @@ import matplotlib.pyplot as plt
 
 DIRECTORY_PATH = "results"
 os.makedirs(DIRECTORY_PATH, exist_ok=True)
+
+os.environ.setdefault("SUMO_HOME", "/opt/homebrew/Cellar/sumo/1.20.0/share/sumo")
 
 # SUMO environment setup
 if 'SUMO_HOME' in os.environ:
@@ -15,7 +18,7 @@ else:
 
 # SUMO configuration
 sumo_config = [
-    'sumo-gui', '-c', 'networks/simple_cross_lad.sumocfg',
+    'sumo-gui', '-c', 'networks/simple_cross.sumocfg',
     '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
@@ -35,25 +38,16 @@ step_history = []
 queue_history = []
 waiting_time_history = []
 
-def get_lane_queue_length(lane_id):
-    return traci.lanearea.getLastStepVehicleNumber(lane_id)
+def save_metric_history(tag, metric, steps, values):
+    """Persist history data so comparison scripts can consume it."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
 
 def get_total_queue_length():
-    total = 0
+    # Sum halted vehicles on each lane controlled by this traffic light
     incoming_lanes = set(traci.trafficlight.getControlledLanes(TRAFFIC_LIGHT))
-
-    detectors = [
-        det for det in traci.lanearea.getIDList()
-        if traci.lanearea.getLaneID(det) in incoming_lanes
-    ]
-    detectors.sort()
-
-    # Collect queue length from detectors
-    for det in detectors:
-        q = traci.lanearea.getLastStepVehicleNumber(det)
-        q_discrete = int(round(q / 1.0))
-        total += q_discrete
-    return total
+    return sum(traci.lane.getLastStepHaltingNumber(lane) for lane in incoming_lanes)
 
 def get_total_waiting_time():
     #Total waiting time of all vehicles
@@ -81,6 +75,9 @@ for step in range(SIMULATION_STEPS):
 
 traci.close()
 print("\nSimulation complete.")
+
+save_metric_history("fixed-timing", "waiting", step_history, waiting_time_history)
+save_metric_history("fixed-timing", "queue", step_history, queue_history)
 
 plt.figure(figsize=(8, 6))
 plt.plot(step_history, queue_history, marker='o', label="Total Queue Length")

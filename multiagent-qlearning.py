@@ -1,4 +1,5 @@
 # multiple independent agents
+import json
 import os
 import sys
 import traci
@@ -47,6 +48,12 @@ print(f"Detected {len(traffic_lights)} traffic lights: {traffic_lights}")
 step_history = []
 avg_queue_history = []
 avg_waiting_time_history = []
+
+def save_metric_history(tag, metric, steps, values):
+    """Persist metric history for offline comparison plots."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
 
 phase_step_counter = {tl: 0 for tl in traffic_lights}
 
@@ -185,6 +192,9 @@ for step in range(SIMULATION_STEPS + 1):
 # Clean shutdown
 traci.close(False)
 print("\nSimulation complete. SUMO closed automatically.")
+
+save_metric_history("multiagent-qlearning", "waiting", step_history, avg_waiting_time_history)
+save_metric_history("multiagent-qlearning", "queue", step_history, avg_queue_history)
 
 # Plot queue length
 plt.figure(figsize=(8, 6))

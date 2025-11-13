@@ -142,7 +142,7 @@ for step in range(SIMULATION_STEPS):
         # Execute action
         if action == 1 and phase_step_counter[tl_id] >= MIN_STEPS_PER_PHASE:
             current_phase = traci.trafficlight.getPhase(tl_id)
-            n_phases = len(traci.trafficlight.get   CompleteRedYellowGreenDefinition(tl_id)[0].phases)
+            n_phases = len(traci.trafficlight.getCompleteRedYellowGreenDefinition(tl_id)[0].phases)
             traci.trafficlight.setPhase(tl_id, (current_phase + 1) % n_phases)
 
         # Compute cooperative reward

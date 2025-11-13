@@ -2,6 +2,7 @@
     <input>
         <net-file value="simple_cross.net.xml"/>
         <route-files value="single_cross/simple_cross.rou.xml"/>
+        <additional-files value="simple_cross.detectors.add.xml"/>
     </input>
 
     <time>

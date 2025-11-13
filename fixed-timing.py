@@ -29,9 +29,6 @@ traci.gui.setSchema("View #0", "real world")
 # Parameters
 SIMULATION_STEPS = 10000
 TRAFFIC_LIGHT = "cluster_J1_J2_J4_J6"
-# GREEN_DURATION = 60
-# STEP_LENGTH = 0.1
-# STEPS_PER_PHASE = int(GREEN_DURATION / STEP_LENGTH)
 
 # Data
 step_history = []
@@ -45,9 +42,24 @@ def save_metric_history(tag, metric, steps, values):
         json.dump({"steps": steps, "values": values}, fh)
 
 def get_total_queue_length():
-    # Sum halted vehicles on each lane controlled by this traffic light
+    # Use lane-area detectors to estimate queue length on incoming lanes
     incoming_lanes = set(traci.trafficlight.getControlledLanes(TRAFFIC_LIGHT))
-    return sum(traci.lane.getLastStepHaltingNumber(lane) for lane in incoming_lanes)
+    detectors = [
+        det for det in traci.lanearea.getIDList()
+        if traci.lanearea.getLaneID(det) in incoming_lanes
+    ]
+    detectors.sort()
+
+    total = 0
+    for det in detectors:
+        q = traci.lanearea.getLastStepVehicleNumber(det)
+        q_discrete = int(round(q / 1.0))
+        total += q_discrete
+
+    # If no detectors exist, fall back to halting numbers
+    if not detectors:
+        total = sum(traci.lane.getLastStepHaltingNumber(lane) for lane in incoming_lanes)
+    return total
 
 def get_total_waiting_time():
     #Total waiting time of all vehicles

@@ -46,8 +46,8 @@ print(f"Detected {len(traffic_lights)} traffic lights: {traffic_lights}")
 
 # Data
 step_history = []
-avg_queue_history = []
-avg_waiting_time_history = []
+total_queue_history = []
+total_waiting_time_history = []
 
 def save_metric_history(tag, metric, steps, values):
     """Persist metric history for offline comparison plots."""
@@ -181,27 +181,25 @@ for step in range(SIMULATION_STEPS + 1):
 
     # Record every 100 steps
     if step % 100 == 0:
-        avg_q = total_queue / len(traffic_lights)
-        avg_w = total_waiting / len(traffic_lights)
-        print(f"Step {step}: AvgQueue={avg_q:.2f}, AvgWait={avg_w:.2f}")
+        print(f"Step {step}: TotalQueue={total_queue}, TotalWait={total_waiting:.2f}")
 
         step_history.append(step)
-        avg_queue_history.append(avg_q)
-        avg_waiting_time_history.append(avg_w)
+        total_queue_history.append(total_queue)
+        total_waiting_time_history.append(total_waiting)
 
 # Clean shutdown
 traci.close(False)
 print("\nSimulation complete. SUMO closed automatically.")
 
-save_metric_history("multiagent-qlearning", "waiting", step_history, avg_waiting_time_history)
-save_metric_history("multiagent-qlearning", "queue", step_history, avg_queue_history)
+save_metric_history("multiagent-qlearning", "waiting", step_history, total_waiting_time_history)
+save_metric_history("multiagent-qlearning", "queue", step_history, total_queue_history)
 
 # Plot queue length
 plt.figure(figsize=(8, 6))
-plt.plot(step_history, avg_queue_history, marker='o', label="Average Queue Length")
-plt.title("Average Queue Length over Time (Multi-Agent Q-Learning)")
+plt.plot(step_history, total_queue_history, marker='o', label="Total Queue Length")
+plt.title("Total Queue Length over Time (Multi-Agent Q-Learning)")
 plt.xlabel("Simulation Step")
-plt.ylabel("Average Queue Length (vehicles)")
+plt.ylabel("Total Queue Length (vehicles)")
 plt.legend()
 plt.grid(True)
 plt.savefig(DIRECTORY_PATH + "/multiagent-qlearning-queuelength.png")
@@ -209,10 +207,10 @@ plt.show()
 
 # Plot waiting time
 plt.figure(figsize=(8, 6))
-plt.plot(step_history, avg_waiting_time_history, marker='o', label="Average Waiting Time")
-plt.title("Average Waiting Time over Time (Multi-Agent Q-Learning)")
+plt.plot(step_history, total_waiting_time_history, marker='o', label="Total Waiting Time")
+plt.title("Total Waiting Time over Time (Multi-Agent Q-Learning)")
 plt.xlabel("Simulation Step")
-plt.ylabel("Average Waiting Time (s)")
+plt.ylabel("Total Waiting Time (s)")
 plt.legend()
 plt.grid(True)
 plt.savefig(DIRECTORY_PATH + "/multiagent-qlearning-waitingtime.png")

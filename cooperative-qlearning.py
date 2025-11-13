@@ -1,4 +1,5 @@
 # cooperative q-learning with shared reward
+import json
 import os
 import sys
 import traci
@@ -16,15 +17,17 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.exit("Please declare environment variable 'SUMO_HOME'")
 
-# SUMO configuration
+# SUMO configuration (default to fast headless binary, allow override)
+SUMO_BINARY = os.environ.get("SUMO_BINARY", "sumo")
 sumo_config = [
-    'sumo-gui', '-c', 'networks/multi_cross/multi_cross.sumocfg',
+    SUMO_BINARY, '-c', 'networks/multi_cross/multi_cross.sumocfg',
     '--step-length', '0.10', '--start', '--quit-on-end'
 ]
 
 # Start SUMO and Traci
 traci.start(sumo_config)
-traci.gui.setSchema("View #0", "real world")
+if SUMO_BINARY.endswith("gui"):
+    traci.gui.setSchema("View #0", "real world")
 
 # Parameters
 SIMULATION_STEPS = 10000
@@ -56,66 +59,75 @@ phase_step_counter = {tl: 0 for tl in traffic_lights}
 # Initialize Q-tables
 Q_table = {tl: {} for tl in traffic_lights}
 
+# Cache lane mappings to minimize repeated TraCI calls each step
+incoming_lanes_map = {tl: tuple(traci.trafficlight.getControlledLanes(tl)) for tl in traffic_lights}
+outgoing_lanes_map = {}
+for tl in traffic_lights:
+    links = traci.trafficlight.getControlledLinks(tl)
+    outgoing = []
+    for link_group in links:
+        for link in link_group:
+            out_lane = link[1]
+            if out_lane is not None:
+                outgoing.append(out_lane)
+    outgoing_lanes_map[tl] = tuple(outgoing)
+
+# Map each lane to its detectors once
+lane_detectors_map = {}
+for det in traci.lanearea.getIDList():
+    try:
+        lane = traci.lanearea.getLaneID(det)
+    except traci.TraCIException:
+        continue
+    lane_detectors_map.setdefault(lane, []).append(det)
+
 # data
 system_step = []
 system_total_queue = []
 system_total_wait = []
 system_total_reward = []
 
-# def get_lane_queue_length(lane_id):
-#     return traci.lanearea.getLastStepVehicleNumber(lane_id)
+def save_metric_history(tag, metric, steps, values):
+    """Persist metric history for offline comparisons."""
+    path = os.path.join(DIRECTORY_PATH, f"{tag}-{metric}.json")
+    with open(path, "w") as fh:
+        json.dump({"steps": steps, "values": values}, fh)
+
+def lane_queue_for_single_lane(lane_id):
+    detectors = lane_detectors_map.get(lane_id)
+    if detectors:
+        return sum(traci.lanearea.getLastStepVehicleNumber(det) for det in detectors)
+    return traci.lane.getLastStepHaltingNumber(lane_id)
 
 def get_lane_queue_length(lanes):
-    # lanes may be a list, tuple, or string
     if isinstance(lanes, (list, tuple, set)):
-        return sum(get_lane_queue_length(l) for l in lanes)
-    # single lane string
-    detectors = [d for d in traci.lanearea.getIDList()
-                 if traci.lanearea.getLaneID(d) == lanes]
-    if len(detectors) == 0:
-        # fallback: halting vehicles
-        return traci.lane.getLastStepHaltingNumber(lanes)
-    return sum(traci.lanearea.getLastStepVehicleNumber(d) for d in detectors)
+        return sum(lane_queue_for_single_lane(lane) for lane in lanes)
+    return lane_queue_for_single_lane(lanes)
 
 def compute_pressure(tl):
     # Incoming lanes
-    incoming = traci.trafficlight.getControlledLanes(tl)
+    incoming = incoming_lanes_map[tl]
     Qin = get_lane_queue_length(incoming)
 
-    # Outgoing lanes from link index lists
-    links = traci.trafficlight.getControlledLinks(tl)
-    outgoing = []
-    for link_group in links:
-        for link in link_group:
-            out_lane = link[1]  # (inLane, outLane, via)
-            if out_lane is not None:
-                outgoing.append(out_lane)
-
+    outgoing = outgoing_lanes_map[tl]
     Qout = get_lane_queue_length(outgoing)
 
     return Qin - Qout
 
 def get_state(tl):
-    incoming_lanes = set(traci.trafficlight.getControlledLanes(tl))
-    detectors = [
-        det for det in traci.lanearea.getIDList()
-        if traci.lanearea.getLaneID(det) in incoming_lanes
-    ]
-    detectors.sort()
+    incoming_lanes = incoming_lanes_map[tl]
+    detectors = []
+    for lane in incoming_lanes:
+        detectors.extend(lane_detectors_map.get(lane, []))
 
-    # Collect queue length from each detector
     lane_queues = []
-    for det in detectors:
-        q = traci.lanearea.getLastStepVehicleNumber(det)
-        q_discrete = int(round(q / 1.0))
-        lane_queues.append(q_discrete)
-
-    # If no detectors exist, use halting number
-    if len(detectors) == 0:
-        incoming_lanes = sorted(list(incoming_lanes))
+    if detectors:
+        for det in sorted(detectors):
+            q = traci.lanearea.getLastStepVehicleNumber(det)
+            lane_queues.append(int(round(q)))
+    else:
         for lane in incoming_lanes:
-            q = traci.lane.getLastStepHaltingNumber(lane)
-            lane_queues.append(q)
+            lane_queues.append(traci.lane.getLastStepHaltingNumber(lane))
 
     current_phase = traci.trafficlight.getPhase(tl)
     state = tuple(lane_queues + [current_phase])
@@ -138,7 +150,7 @@ def update_q_value(tl_id, state, action, reward, next_state):
 
 def get_total_waiting_time(tl_id):
     # Return total waiting time for vehicles approaching traffic light
-    lanes = traci.trafficlight.getControlledLanes(tl_id)
+    lanes = incoming_lanes_map[tl_id]
     vehs = [v for l in lanes for v in traci.lane.getLastStepVehicleIDs(l)]
     return sum(traci.vehicle.getWaitingTime(v) for v in vehs)
 
@@ -206,6 +218,9 @@ for step in range(SIMULATION_STEPS):
 
 traci.close(False)
 print("\nSimulation complete. SUMO closed automatically.")
+
+save_metric_history("cooperative-qlearning", "queue", system_step, system_total_queue)
+save_metric_history("cooperative-qlearning", "waiting", system_step, system_total_wait)
 
 # Plots
 plt.figure(figsize=(8, 6))

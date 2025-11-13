@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<additional>
+    <!-- Lane-area detectors automatically generated for fixed-timing queue measurements -->
+    <laneAreaDetector id="det_-E1_0" lane="-E1_0" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_-E1_1" lane="-E1_1" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_-E2_0" lane="-E2_0" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_-E2_1" lane="-E2_1" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_-E3_0" lane="-E3_0" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_-E3_1" lane="-E3_1" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_E0_0" lane="E0_0" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+    <laneAreaDetector id="det_E0_1" lane="E0_1" pos="-25" length="25" freq="1" file="detectors-output.xml"/>
+</additional>

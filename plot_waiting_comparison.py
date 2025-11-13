@@ -16,14 +16,40 @@ FIGURES = [
         ("Deep Q-Learning", "dql"),
     ]),
     ("Waiting Time: Multi Intersection", "waiting", "Total Waiting Time (s)", "waiting-multiagent.png", [
-        ("Cooperative Q-Learning", "cooperative-qlearning-simple"),
+        ("Cooperative Q-Learning", "cooperative-qlearning"),
         ("Multi-Agent Q-Learning", "multiagent-qlearning"),
         ("Multi-Agent DQL", "multiagent-dql"),
+        ("Coordinated DQL", "coordinated-dql"),
     ]),
     ("Queue Length: Multi Intersection", "queue", "Queue Length (vehicles)", "queue-multiagent.png", [
-        ("Cooperative Q-Learning", "cooperative-qlearning-simple"),
+        ("Cooperative Q-Learning", "cooperative-qlearning"),
         ("Multi-Agent Q-Learning", "multiagent-qlearning"),
         ("Multi-Agent DQL", "multiagent-dql"),
+        ("Coordinated DQL", "coordinated-dql"),
+    ]),
+    ("Waiting Time: DQL Variants", "waiting", "Total Waiting Time (s)", "waiting-dql-variants.png", [
+        ("Independent Multi-Agent DQL", "multiagent-dql"),
+        ("Coordinated DQL", "coordinated-dql"),
+    ]),
+    ("Queue Length: DQL Variants", "queue", "Queue Length (vehicles)", "queue-dql-variants.png", [
+        ("Independent Multi-Agent DQL", "multiagent-dql"),
+        ("Coordinated DQL", "coordinated-dql"),
+    ]),
+    ("Queue Length: Cooperative Variants", "queue", "Queue Length (vehicles)", "queue-cooperative-variants.png", [
+        ("Cooperative Q-Learning (Base)", "cooperative-qlearning"),
+        ("Cooperative Waiting-Time Q-Learning", "cooperative-waiting-qlearning")
+    ]),
+    ("Waiting Time: Cooperative Variants", "waiting", "Total Waiting Time (s)", "waiting-cooperative-variants.png", [
+        ("Cooperative Q-Learning (Base)", "cooperative-qlearning"),
+        ("Cooperative Waiting-Time Q-Learning", "cooperative-waiting-qlearning")
+    ]),
+    ("Waiting Time: Coop Simple vs Complex", "waiting", "Total Waiting Time (s)", "waiting-coop-simple-vs-base.png", [
+        ("Cooperative Q-Learning (Simple)", "cooperative-qlearning-simple"),
+        ("Cooperative Q-Learning (Complex)", "cooperative-qlearning"),
+    ]),
+    ("Queue Length: Coop Simple vs Complex", "queue", "Queue Length (vehicles)", "queue-coop-simple-vs-base.png", [
+        ("Cooperative Q-Learning (Simple)", "cooperative-qlearning-simple"),
+        ("Cooperative Q-Learning (Complex)", "cooperative-qlearning"),
     ]),
 ]
 
